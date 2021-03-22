@@ -7,7 +7,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
-\usepackage{ulem}
+\usepackage{ulem,xcolor}
 \usepackage[margin=0.5in]{geometry}
 \begin{document}
 \maketitle
@@ -26,7 +26,7 @@
 \item Do the algebra in more detail to obtain equation 11.22 (state the exact method of application of Holder's inequality - check the wiki article on it, if you want to find out what this inequality states).
 \item Derive equation 11.23.
 \item Assuming Lemma 11.1 is true and now that you have derived equation 11.23, complete the proof for the final error bound for equation 11.14b.
-\item In which part of the proof does the bound $\lambda_N \geq 2 \dfrac{\|\boldsymbol{Xw}\|_{\infty}}{N}$ show up? Explain.
+\item In which part of the proof does the bound $\lambda_N \geq 2 \dfrac{\|\boldsymbol{X}^T \boldsymbol{w}\|_{\infty}}{N}$ show up? Explain.
 \item Why is the cone constraint required? You may read the rest of the chapter to find the answer.
 \item Read example 11.1 which tells you how to put a tail bound on $\lambda_N$ assuming that the noise vector $\boldsymbol{w}$ is zero-mean Gaussian with standard  deviation $\sigma$. Given this, state the advantages of this theorem over Theorem 3 that we did in class. You may read parts of the rest of the chapter to answer this question. What are the advantages of Theorem 3 over this particular theorem? 
 \item Now read Theorem 1.10 till corollary 1.2 and comments on it concerning an estimator called the `Dantzig selector', in the tutorial `Introduction to Compressed Sensing' by Davenport, Duarte, Eldar and Kuttyniok. You can find it here: \url{http://www.ecs.umass.edu/~mduarte/images/IntroCS.pdf}. What is the common thread between the bounds on the `Dantzig selector' and the LASSO? 
@@ -40,11 +40,11 @@ Modify the objective function from the lecture notes for the case of three simil
 \item Prove the following properties of the Radon transform:
 \begin{enumerate}
 \item Shifting: $R(g(x-x_0,y-y_0))(\rho,\theta) = R(g(x,y))(\rho-x_0 \cos \theta - y_0 \sin \theta,\theta)$. Here $\rho$ is the offset and $\theta$ is the angle of projection.
-\item Rotation: Let $g'(r,\psi) = g(r,\psi-\psi_0)$. Then prove that $R(g')(\rho,\theta) = R(g)(\rho,\psi_0-\theta)$.
+\item Rotation: Let $g'(r,\psi) = g(r,\psi-\psi_0)$. Then prove that $R(g')(\rho,\theta) = R(g)(\rho,\theta-\psi_0)$. \sout{$R(g')(\rho,\theta) = R(g)(\rho,\psi_0-\theta)$.}
 \item Convolution: Given image $f(x,y)$ and kernel $k(x,y)$, show that $R_{\theta}(f*k) = R_{\theta}(f) * R_{\theta}(k)$, where $*$ is the convolution operation. In other words, the Radon transform of the convolution of two signals is equal to the convolution of the Radon transform of the individual signals (in the same angles). \textsf{[8+5+7=20 points]}
 \end{enumerate}
 
-\item For a sensing matrix with $s$-order restricted isometry constant $\delta_s$ and mutual coherence $\mu$, prove that $\delta_s \leq (s-1) \mu$. (Hint: Use Gershgorin's disc theorem.) \textsf{[10 points]}
+\item For a sensing matrix \textcolor{blue}{with columns having unit magnitude}, with $s$-order restricted isometry constant $\delta_s$ and mutual coherence $\mu$, prove that $\delta_s \leq (s-1) \mu$. (Hint: Use Gershgorin's disc theorem.) \textsf{[10 points]}
 
 \item Here is our Google search question again. You know of the applications of tomography in medicine (CT scanning) and virology/structural biology. Your job is to search for a journal paper from any \emph{other} field which requires the use of tomographic reconstruction (examples: seismology, agriculture, gemology). State the title, venue and year of publication of the paper. State the mathematical problem defined in the paper. Take care to explain the meaning of all key terms clearly. State the method of optimization that the paper uses to solve the problem. \textsf{[15 points]}
 
