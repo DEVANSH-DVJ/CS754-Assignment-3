@@ -18,16 +18,16 @@ N = W;
 clear H W slice;
 
 angles = 0:10:170;
+Q = size(angles, 2);
 
 tomo = radon(orig, angles);
+M = size(tomo, 1);
 
-A  = RU(N, size(tomo,1), angles);
+A  = RU(N, M, angles);
 At = A';
-y = reshape(tomo, [size(tomo,1)*size(tomo,2) 1]);
+y = reshape(tomo, [M*Q 1]);
 
 lambda_max = find_lambdamax_l1_ls(At,y);
-[x, status] = l1_ls(A, At, size(tomo,1)*size(tomo,2), N*N, y, 0.01);
+[x, status] = l1_ls(A, At, M*Q, N*N, y, 0.01);
 figure; imshow(cast(idct2(reshape(x, [N N])), 'uint8'));
-
-
 

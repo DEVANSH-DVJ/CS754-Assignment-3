@@ -1,9 +1,9 @@
-function  res = RU(N, tomo_len, angles)
+function  res = RU(N, M, angles)
 
 res.adjoint = 0;
 res.N = N;
-res.tomo_len1 = tomo_len;
-res.tomo_len2 = size(angles, 2);
+res.M = M; % Number of tomographic displacements
+res.Q = size(angles, 2);
 res.angles = angles;
 
 % Register this variable as a RU class
