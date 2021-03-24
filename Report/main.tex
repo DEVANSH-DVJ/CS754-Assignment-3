@@ -217,7 +217,12 @@ for some parameter $\alpha \geq 1$.
 
 \end{center}
 
-Thus by the cone constraint we achieve strong convexity in the region of the lasso error.
+Thus by the cone constraint we achieve strong convexity in the region of the lasso error,
+which thus helps us achieve our goal, that is,
+whenever the difference in function values $\Delta f_N = | f_N(\beta_1) - f_N(\beta_2) |  $
+converges to zero, the $\ell_2$-norm
+of the parameter vector difference 
+$\Delta \beta = \norm{ \beta_1 - \beta_2 }_2    $ also converges to zero. 
 
 \bigskip
 
@@ -227,9 +232,9 @@ Thus by the cone constraint we achieve strong convexity in the region of the las
 \begin{enumerate}
     \item There was a restriction on the value of $\delta_{2S}$ ($< \sqrt{2} - 1$) in Theorem 3, here, there is no restriction on $\gamma$ (except $> 0$) in this Theorem.
     \item As described on Pg. 296, ``the rate (11.15)—including the logarithmic factor—is known to be minimax optimal, meaning that it cannot be substantially improved upon by any estimator.".
-    \item On Pg. 302, Theorem 11.3 stats the uniqueness of the optimal solution $\hat{\beta}$ and no false inclusions and exclusions of indices and hence is variable selection consistent.
-    \item On applying Theorem 3 on zero-mean Gaussian with standard deviation $\sigma$, we choose $\epsilon$ as $9m\sigma^2$ (whp), which gives the error bound proportional to $\sigma^2$.\\
-    In this example, we showed that taking $\lambda_N$ proportional to $\sigma$ is also a valid choice (whp). Which provides a tighter bound than Theorem 3.
+    \item On Pg. 302, Theorem 11.3 states the uniqueness of the optimal solution $\hat{\beta}$, no false inclusions and exclusions of indices; and hence is variable selection consistent.
+    \item On applying Theorem 3 with error modelled as zero-mean Gaussian with standard deviation $\sigma$, we choose $\epsilon$ as $9m\sigma^2$ (whp), which gives the error bound proportional to $\sigma^2$.\\
+    In this example, we showed that taking $\lambda_N$ proportional to $\sigma$ is also a valid choice, with high probability; which provides a tighter bound than Theorem 3.
     \item In this theorem, we have restricted $\beta*$ to be a k-sparse vector, i.e. sparse in basis $\mathbf{X}$. \\
     Theorem 3 has the advantage that it gives error bounds for compressible signals as well.
 \end{enumerate}
@@ -305,13 +310,163 @@ Here are some advantages of the square root LASSO:
     \item By using moderate deviation theory, we can do away with the assumption that noise follows the normal distribution under certain conditions.
 \end{enumerate}
 
-
+Thus while keeping many of the advantages of LASSO intact, the square root LASSO 
+adds more features to it.
 
 \newpage
 \section*{Question 2}
 \addcontentsline{toc}{section}{Question 2}
 \setcounter{equation}{0}
 
+\subsection*{Instructions for running the code:}
+\begin{itemize}[noitemsep]
+    \item After extracting submitted file, look for a directory named \texttt{q2}, and \texttt{cd} (change directory) to it.
+    \item Run the files \texttt{q2a.m}, \texttt{q2b.m}, \texttt{q2c.m} and \texttt{q2d.m}. The results can be found in \texttt{./results/}.
+\end{itemize}
+
+\subsection*{Package l1\_ls\_matlab}
+Passing \texttt{A} and \texttt{At} as objects
+\begin{verbatim}
+Usage: [x,status]=l1_ls(A,At,m,n,y,lambda,rel_tol);
+\end{verbatim}
+
+\subsection*{Common Steps}
+\begin{enumerate}[noitemsep]
+    \item Reading the slice(s)
+    \item Padding the slice(s) to form square slice(s)
+    \item Angles of Projection\footnote{Even though the question mentions to randomly generate projection angles, best results are found when the projection angles are uniformly spaced. Confirmed with Professor.}
+    \item Creating Tomographic Projections
+    \item Creating objects of Forward matrix (omitted in (a))
+    \item Reconstruction using
+    \begin{enumerate}[noitemsep]
+        \item Filtered Back-projection with Ram-Lak filter
+        \item Compressed Sensing
+        \item 2 slice Coupled Compressed Sensing
+        \item 3 slice Coupled Compressed Sensing
+    \end{enumerate}
+    \item Result
+\end{enumerate}
+
+\subsection*{(b) Compressed Sensing}
+\subsubsection*{Minimization function}
+\begin{equation*}
+    \begin{aligned}
+        & \argmin_\beta \ \lVert \mathbf{y} - \mathbf{R}\mathbf{U}\mathbf{\beta} \rVert^2 + \lambda \lVert \mathbf{\beta} \rVert_1
+    \end{aligned}
+\end{equation*}
+
+\subsubsection*{Class RU}
+Class \texttt{RU} present under folder \texttt{@RU}.\\
+\texttt{@RU/RU.m} contains class constructor.\\
+\texttt{@RU/ctranspose.m} contains overloaded transpose operator (').\\
+\texttt{@RU/mtimes.m} contains overloaded product operator (*).\\
+
+
+\subsection*{(c) 2 slice Coupled Compressed Sensing}
+\subsubsection*{Minimization function}
+\begin{equation*}
+    \begin{aligned}
+        & \argmin_{\beta_1, \beta_2} \ \lVert y_1 - R_1 U \beta_1 \rVert^2 + \lVert y_2 - R_2 U \beta_2  \rVert^2 + \lambda \lVert \beta_1  \rVert_1 + \lambda \lVert \beta_1 - \beta_2 \rVert_1 \\
+        &= \argmin_{\beta_1, \Delta\beta} \ \lVert y_1 - R_1 U \beta_1 \rVert^2 + \lVert y_2 - R_2 U (\beta_1 + \Delta\beta) \rVert^2 + \lambda \lVert \beta_1 \rVert_1 + \lambda \lVert \Delta\beta \rVert_1 \\
+        &= \argmin_{\beta_1, \Delta\beta} \ \left\lVert \begin{pmatrix} y_1 \\ y_2 \end{pmatrix} - \begin{pmatrix} R_1 U & 0 \\ R_2 U & R_2 U \end{pmatrix} \begin{pmatrix} \beta_1 \\ \Delta\beta \end{pmatrix} \right\rVert^2 + \lambda \left\lVert \begin{pmatrix} \beta_1 \\ \Delta\beta \end{pmatrix} \right\rVert_1 \\
+        & \text{ where, } \beta_2 = \beta_1 + \Delta\beta
+    \end{aligned}
+\end{equation*}
+
+\subsubsection*{Class CCS2}
+Class \texttt{CCS2} present under folder \texttt{@CCS2}.\\
+\texttt{@CCS2/CCS2.m} contains class constructor.\\
+\texttt{@CCS2/ctranspose.m} contains overloaded transpose operator (').\\
+\texttt{@CCS2/mtimes.m} contains overloaded product operator (*).\\
+
+
+\subsection*{(d) 3 slice Coupled Compressed Sensing}
+\subsubsection*{Minimization function}
+\begin{equation*}
+    \begin{aligned}
+        & \argmin_{\beta_1, \beta_2, \beta3} \ \lVert y_1 - R_1 U \beta_1 \rVert^2 + \lVert y_2 - R_2 U \beta_2 \rVert^2 + \lVert y_3 - R_3 U \beta_3 \rVert^2 + \lambda \lVert \beta_2  \rVert_1 + \lambda \lVert \beta_2 - \beta_1 \rVert_1 + \lambda \lVert \beta_2 - \beta_3 \rVert_1 \\
+        &= \argmin_{\beta_2, \Delta\beta_1, \Delta\beta_2} \ \lVert y_1 - R_1 U (\beta_2 + \Delta\beta_1) \rVert^2 + \lVert y_2 - R_2 U \beta_2 \rVert^2 + \lVert y_3 - R_3 U (\beta_2 + \Delta\beta_2) \rVert^2 + \lambda \lVert \beta_2 \rVert_1 + \lambda \lVert \Delta\beta_1 \rVert_1 + \lambda \lVert \Delta\beta_2 \rVert_1 \\
+        &= \argmin_{\beta_2, \Delta\beta_1, \Delta\beta_2} \ \left\lVert \begin{pmatrix} y_1 \\ y_2 \\ y_3 \end{pmatrix} - \begin{pmatrix} R_1 U & R_1 U & 0 \\ R_2 U & 0 & 0 \\ R_3 U & 0 & R_3 U \end{pmatrix} \begin{pmatrix} \beta_2 \\ \Delta\beta_1 \\ \Delta\beta_2 \end{pmatrix} \right\rVert^2 + \lambda \left\lVert \begin{pmatrix} \beta_2 \\ \Delta\beta_1 \\ \Delta\beta_2 \end{pmatrix} \right\rVert_1
+         & \text{ where, } \beta_1 = \beta_2 + \Delta\beta_1 \text{ and } \beta_3 = \beta_2 + \Delta\beta_2
+   \end{aligned}
+\end{equation*}
+
+\subsubsection*{Class CCS3}
+Class \texttt{CCS3} present under folder \texttt{@CCS3}.\\
+\texttt{@CCS3/CCS3.m} contains class constructor.\\
+\texttt{@CCS3/ctranspose.m} contains overloaded transpose operator (').\\
+\texttt{@CCS3/mtimes.m} contains overloaded product operator (*).\\
+
+
+\subsection*{Results}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2a.png}
+    \caption{Original (\texttt{slice50.png}) Vs Reconstruction from Tomographic Projections (18 angles) using Filtered Back-projection}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2b_100.png}
+    \caption{Original (\texttt{slice50.png}) Vs Reconstruction from Tomographic Projections (18 angles) using Compressed Sensing with $\lambda = 100$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2b_10.png}
+    \caption{Original (\texttt{slice50.png}) Vs Reconstruction from Tomographic Projections (18 angles) using Compressed Sensing with $\lambda = 10$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2b_1.png}
+    \caption{Original (\texttt{slice50.png}) Vs Reconstruction from Tomographic Projections (18 angles) using Compressed Sensing with $\lambda = 1$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2b_0.1.png}
+    \caption{Original (\texttt{slice50.png}) Vs Reconstruction from Tomographic Projections (18 angles) using Compressed Sensing with $\lambda = 0.1$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2b_0.01.png}
+    \caption{Original (\texttt{slice50.png}) Vs Reconstruction from Tomographic Projections (18 angles) using Compressed Sensing with $\lambda = 0.01$}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2c_100.png}
+    \caption{Original (\texttt{slice51.png}, \texttt{slice52.png}) Vs Reconstruction from Tomographic Projections (18 angles) using 2 slice Coupled Compressed Sensing with $\lambda = 100$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2c_10.png}
+    \caption{Original (\texttt{slice51.png}, \texttt{slice52.png}) Vs Reconstruction from Tomographic Projections (18 angles) using 2 slice Coupled Compressed Sensing with $\lambda = 10$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2c_1.png}
+    \caption{Original (\texttt{slice51.png}, \texttt{slice52.png}) Vs Reconstruction from Tomographic Projections (18 angles) using 2 slice Coupled Compressed Sensing with $\lambda = 1$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{q2c_0.1.png}
+    \caption{Original (\texttt{slice51.png}, \texttt{slice52.png}) Vs Reconstruction from Tomographic Projections (18 angles) using 2 slice Coupled Compressed Sensing with $\lambda = 0.1$}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.8]{q2d_100.png}
+    \caption{Original (\texttt{slice53.png}, \texttt{slice54.png}, \texttt{slice55.png}) Vs Reconstruction from Tomographic Projections (18 angles) using 3 slice Coupled Compressed Sensing with $\lambda = 100$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.8]{q2d_10.png}
+    \caption{Original (\texttt{slice53.png}, \texttt{slice54.png}, \texttt{slice55.png}) Vs Reconstruction from Tomographic Projections (18 angles) using 3 slice Coupled Compressed Sensing with $\lambda = 10$}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.8]{q2d_1.png}
+    \caption{Original (\texttt{slice53.png}, \texttt{slice54.png}, \texttt{slice55.png}) Vs Reconstruction from Tomographic Projections (18 angles) using 3 slice Coupled Compressed Sensing with $\lambda = 1$}
+\end{figure}
 
 
 \newpage
@@ -411,10 +566,10 @@ $
 
 \medskip
 
-Noting that 
+Noting that for functions with period $2 \pi$, as is the case here,
 $ \displaystyle \int_{-\pi - \psi_0 }^{\pi - \psi_0 } f(\theta) d \theta =  
 \displaystyle \int_{-\pi  }^{\pi } f(\theta) d \theta 
-$
+$  
 
 \medskip
 
@@ -596,6 +751,7 @@ $\delta_s \leq (s-1) \mu $
 
 \hrulefill 
 
+\medskip
 
 \textbf{Proof:}
 \smallskip
@@ -653,7 +809,9 @@ such that $| \lambda - B_{jj} | \leq \displaystyle \sum_{i=0, i \neq j}^{i=n} |B
 
 \medskip 
 
-In our case due to unit normalisation, $(\bs{A_S^TA_S})_{jj}=1$ and  
+In our case (where we consider $B=\bs{A_S^TA_S}$); due to unit normalisation, we have $(\bs{A_S^TA_S})_{jj}=1$ and  
+
+by definition of mutual coherence, we can also write the following: 
 
 $\displaystyle \sum_{i=0, i \neq j}^{i=s} |(\bs{A_S^TA_S})_{ji} | 
 = \sum_{i=0, i \neq j}^{i=s} |((\bs{A_S})_j)^T (\bs{A_S})_{i} |  
@@ -685,7 +843,7 @@ $\delta_s \leq (s-1) \mu $
 \textbf{Title} : X‐ray computed tomography for quality inspection of agricultural products: A review \\
 \textbf{Venue} : Food Science \& Nutrition - Wiley Online Library \\
 \textbf{First published} : 23rd August 2019 \\
-\textbf{Link} : \url{https://onlinelibrary.wiley.com/doi/full/10.1002/fsn3.1179} \\
+\textbf{Link} : \url{https://onlinelibrary.wiley.com/doi/full/10.1002/fsn3.1179}
 
 \subsection*{Mathematical Problem}
 X‐ray CT technology is used to obtain two‐dimensional slice images and three‐dimensional tomographic images of samples. The review provides an overview of the working principle of X‐ray CT technology, image processing, and analysis. \\
@@ -698,7 +856,7 @@ $\mu_n$ is the linear attenuation coefficient of a sample on the wavelength in e
 $l$ is the path length through a sample in mm. \\
 
 The calculation formula of CT number is as follows:
-$$ \text{CT Number} = \frac{\mu - \mu_w}{\mu} x 1000$$
+$$ \text{CT Number} = \frac{\mu - \mu_w}{\mu} \times 1000 $$
 where $\mu$ is the linear attenuation coefficient of a sample, and\\
 $\mu_w$ is the linear attenuation coefficient of water (approximately 0.195).\\
 The measurement range of CT number is from –1,000 Hu to + 4,000 Hu. Besides, CT number for air is –1,000 Hu and the number for water is 0 Hu (Ogawa, 1998).
@@ -708,7 +866,7 @@ The measurement range of CT number is from –1,000 Hu to + 4,000 Hu. Besides, C
 \begin{enumerate}[noitemsep]
     \item 2D slice images are generated to reconstruct the 3D model
     \item Gaussian or median filter is used to reduce noise with 3D raw gray‐level images
-    \item The \textbf{threshold segmentation} is used to segment the image based on the gray value histogram of different regions
+    \item The \textbf{threshold segmentation} is used to segment the image based on the gray value histogram of different regions. More on this below.
     \item The final step is the qualitative and quantitative analysis on CT data of region of interests (ROIs).
 \end{enumerate}
 
@@ -717,7 +875,57 @@ The measurement range of CT number is from –1,000 Hu to + 4,000 Hu. Besides, C
     \includegraphics[scale=0.5]{Q5.jpg}
 \end{figure}
 
+\newpage 
 
+\subsection*{Optimization Constructs}
+
+In the process, we used optimization in two different steps: 
+
+\medskip
+
+\textbf{3D - reconstruction:}
+
+\smallskip
+
+In the image processing part, we reconstruct the 3D model using various 2D slice images. This can be \\ performed via
+various methods like using SURF(Speeded-Up Robust Features), or, say SIFT (Scale-Invariant Feature Transform) 
+for feature detection steps: detection, description and matching, which can then be used with methods like 
+SSD (Sum of Squared Differences) matching algorithm using image segmentation with aim to obtain 
+accurate 3D models. 
+
+These methods involve optimization of parameters like matching cost($D(p)$):
+
+$$D(p)=\exp (-SSD(p))$$
+
+where $SSD(p)$ is the SSD score in a square neighborhood searching window.
+
+We are omitting exact details of this optimization construct; as this is just a tool for accomplishing 
+one particular step; however we mentioned this as the question asked for methods of optimization. 
+
+\medskip
+
+\textbf{Threshold segmentation}
+
+\smallskip
+
+In digital image processing, thresholding is a method of
+segmenting images. From a grayscale image,
+thresholding is used to create binary images.
+
+\smallskip
+
+Automatic thresholding is a great way to extract 
+useful information encoded into pixels.
+
+\smallskip
+
+The \textbf{optimization} done for this purpose is to minimize
+background noise. 
+
+\smallskip
+
+This is accomplished by utilizing a feedback loop to optimize the threshold value before converting the original grayscale image to binary. 
+The idea is to separate the image into two parts; the background and foreground.
 
 \end{document}
 
