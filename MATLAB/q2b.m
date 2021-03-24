@@ -17,17 +17,25 @@ N = W;
 % figure; imshow(cast(orig, 'uint8'));
 clear H W slice;
 
-angles = 0:10:170;
+% Angles of Projection
+angles = 0:10:170; % Uniformly spaced angles
 Q = size(angles, 2);
 
+% Creating Tomographic Projections
 tomo = radon(orig, angles);
 M = size(tomo, 1);
 
+% Creating objects of Forward matrix
 A  = RU(N, M, angles);
 At = A';
 y = reshape(tomo, [M*Q 1]);
 
-lambda_max = find_lambdamax_l1_ls(At,y);
-[x, status] = l1_ls(A, At, M*Q, N*N, y, 0.01);
-figure; imshow(cast(idct2(reshape(x, [N N])), 'uint8'));
+% Reconstruction using CS
+% lambda_max = find_lambdamax_l1_ls(At,y);
+lambda = 1;
+[x, status] = l1_ls(A, At, M*Q, N*N, y, lambda);
+recon = idct2(reshape(x, [N N]));
 
+% Result
+figure; imshow(cast([orig recon], 'uint8'));
+imwrite(cast([orig recon], 'uint8'), 'results/q2b_1.png');

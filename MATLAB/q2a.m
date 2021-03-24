@@ -15,10 +15,15 @@ N = W;
 % figure; imshow(cast(orig, 'uint8'));
 clear H W slice;
 
-angles = 0:10:170;
+% Angles of Projection
+angles = 0:10:170; % Uniformly spaced angles
 
+% Creating Tomographic Projections
 tomo = radon(orig, angles);
 
-recon = iradon(tomo, angles, N);
-figure; imshow(cast(recon, 'uint8'));
+% Filtered Back-projection
+recon = iradon(tomo, angles, N); % Ram-Lak filter by default
 
+% Result
+figure; imshow(cast([orig recon], 'uint8'));
+imwrite(cast([orig recon], 'uint8'), 'results/q2a.png');
